@@ -257,9 +257,22 @@ describe('Service: luceneQueryFactory', function () {
         query.clearField('status');
         expect(query.getSearchExpression()).toBe('');
       });
+      it('allows to clear all fields', function() {
+        query.clearAll();
+        expect(query.getSearchExpression()).toBe('');
+        query.searchField('a', '1');
+        query.searchField('b', '2');
+        query.searchField('c', '3');
+        expect(query.getSearchExpression()).toBe('a:1 AND b:2 AND c:3');
+        query.clearAll();
+        expect(query.getSearchExpression()).toBe('');
+      });
     });
   });
   describe('a query that match one of multiple key value pairs (eitherOr query)', function() {
+    beforeEach(function() {
+      query = luceneQueryFactory.create();
+    });
     it ('generates the expected expression with simple fields', function() {
       query.searchFieldEitherOr('createdBy', {
         'contact_createdby_username': 'username',
@@ -294,9 +307,19 @@ describe('Service: luceneQueryFactory', function () {
       query.searchFieldEitherOr('createdBy', {});
       expect(query.getSearchExpression()).toBe('');
     });
+    it('filters out empty fields', function() {
+      query.searchField('phone_number2', '5678');
+      query.searchFieldEitherOr('createdBy', {
+        'contact_createdby_username': undefined,
+        'createdby': []});
+      expect(query.getSearchExpression()).toBe('phone_number2:5678');
+      query.clearField('phone_number2');
+      expect(query.getSearchExpression()).toBe('');
+    });
   });
   describe('a query on a field with multiple values', function(){
     beforeEach(function(){
+      query = luceneQueryFactory.create();
       query.searchField('status', ['new', 'in progress']);
     });
     it('generates the expected expression', function(){

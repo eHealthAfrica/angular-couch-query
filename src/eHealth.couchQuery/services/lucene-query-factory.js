@@ -62,33 +62,43 @@ angular
             free = false;
             return query;
           },
+          clearAll: function() {
+            free = false;
+            fields = {};
+            return query;
+          },
           getSearchExpression: function() {
-            var terms = Object.keys(fields).map(function (key) {
-              function addLabel(key, value) {
-                if (angular.isUndefined(value)) {
-                  value = fields[key].value;
+            var terms = Object.keys(fields)
+              .map(function (key) {
+                function addLabel(key, value) {
+                  if (angular.isUndefined(value)) {
+                    value = fields[key].value;
+                  }
+                  var queryValue = angular.isArray(value) ?
+                    '(' + value.map(foldToAscii).join(' OR ') + ')' :
+                    foldToAscii(value);
+                  return key+':'+queryValue;
                 }
-                var queryValue = angular.isArray(value) ?
-                  '(' + value.map(foldToAscii).join(' OR ') + ')' :
-                  foldToAscii(value);
-                return key+':'+queryValue;
-              }
-              if (fields[key].type === 'not') {
-                return 'NOT '+addLabel(key);
-              } else if (fields[key].type === 'eitherOr') {
-                var labeled = Object.keys(fields[key].value).filter(function(k) {
-                  // Filter undefined and empty array values
-                  var val = fields[key].value[k];
-                  return angular.isDefined(val) &&
-                         (!angular.isArray(val) || val.length > 0);
-                }).map(function(k) {
-                  return addLabel(k, fields[key].value[k]);
-                });
-                return labeled.length ? '(' + labeled.join(' OR ') + ')' : '';
-              } else {
-                return addLabel(key);
-              }
-            });
+                if (fields[key].type === 'not') {
+                  return 'NOT '+addLabel(key);
+                } else if (fields[key].type === 'eitherOr') {
+                  var labeled = Object.keys(fields[key].value).filter(function(k) {
+                    // Filter undefined and empty array values
+                    var val = fields[key].value[k];
+                    return angular.isDefined(val) &&
+                           (!angular.isArray(val) || val.length > 0);
+                  }).map(function(k) {
+                    return addLabel(k, fields[key].value[k]);
+                  });
+                  return labeled.length ? '(' + labeled.join(' OR ') + ')' : '';
+                } else {
+                  return addLabel(key);
+                }
+              })
+              .filter(function (term) {
+                // remove empty terms
+                return angular.isDefined(term) && term !== '';
+              });
             if (free) {
               terms.push(foldToAscii(free));
             }
