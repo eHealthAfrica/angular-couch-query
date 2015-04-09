@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this
 file. File structured according to <http://keepachangelog.com/>
 
+## 0.7.4 - 09-04-15
+- Extracted function `addLabel` outside of `getSearchExpression` scope.
+
 ## 0.7.3 - 09-04-15
 ### Fixed
 - `getSearchExpression` fails with empty or undefined terms

@@ -1,6 +1,6 @@
 {
   "name": "angular-couch-query",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "authors": [
     {
       "name": "Francesco Occhipinti",
@@ -18,9 +18,9 @@
   ],
   "dependencies": {},
   "devDependencies": {
+    "angular": "~1.2.21",
     "angular-mocks": "~1.2.21",
     "angular-scenario": "~1.2.21",
-    "angular": "~1.2.21",
     "fold-to-ascii-js": "https://github.com/mplatt/fold-to-ascii-js.git#1.1",
     "ng-lodash": "~0.1.0"
   }
