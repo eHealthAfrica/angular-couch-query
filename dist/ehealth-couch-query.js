@@ -2099,12 +2099,24 @@ angular
     this.setSearchDocument = function(newSearchDocument) {
       searchDocument = newSearchDocument;
     };
+
     this.$get = ['$http', 'requestPaginatorFactory', 'foldToAscii', function($http, requestPaginatorFactory, foldToAscii) {
       function create(options) {
         options = options || {};
         var fields = {},
             free = false,
             fineGrainFields = options.fineGrainFields || {};
+
+        function addLabel(key, value) {
+          if (angular.isUndefined(value)) {
+            value = fields[key].value;
+          }
+          var queryValue = angular.isArray(value) ?
+            '(' + value.map(foldToAscii).join(' OR ') + ')' :
+            foldToAscii(value);
+          return key+':'+queryValue;
+        }
+
         var query = {
           searchField: function(key, value) {
             fields[key] = {
@@ -2158,15 +2170,6 @@ angular
           getSearchExpression: function() {
             var terms = Object.keys(fields)
               .map(function (key) {
-                function addLabel(key, value) {
-                  if (angular.isUndefined(value)) {
-                    value = fields[key].value;
-                  }
-                  var queryValue = angular.isArray(value) ?
-                    '(' + value.map(foldToAscii).join(' OR ') + ')' :
-                    foldToAscii(value);
-                  return key+':'+queryValue;
-                }
                 if (fields[key].type === 'not') {
                   return 'NOT '+addLabel(key);
                 } else if (fields[key].type === 'eitherOr') {
